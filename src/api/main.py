@@ -5,7 +5,7 @@ import joblib
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-MODEL_VERSION = "1.2.0"
+MODEL_VERSION = "2.0.0"
 MODEL_PATH = Path(__file__).resolve().parents[1] / "model.joblib"
 
 app = FastAPI(title="API de predicción", version=MODEL_VERSION)
