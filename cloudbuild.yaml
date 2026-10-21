@@ -1,0 +1,21 @@
+substitutions:
+  _REGION: southamerica-west1
+  _TAG: manual
+steps:
+  # CI: entrenar y testear
+  - name: python:3.12-slim
+    entrypoint: bash
+    args: ["-c", "pip install -r requirements.txt -r requirements-dev.txt && python train.py && python -m pytest -q"]
+  # Build y push de la imagen, etiquetada con el commit
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-t", "${_REGION}-docker.pkg.dev/$PROJECT_ID/ml/poc-api:${_TAG}", "."]
+  - name: gcr.io/cloud-builders/docker
+    args: ["push", "${_REGION}-docker.pkg.dev/$PROJECT_ID/ml/poc-api:${_TAG}"]
+  # CD: desplegar en Cloud Run
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args: ["run", "deploy", "poc-api", "--image", "${_REGION}-docker.pkg.dev/$PROJECT_ID/ml/poc-api:${_TAG}",
+           "--region", "${_REGION}", "--service-account", "poc-api-sa@$PROJECT_ID.iam.gserviceaccount.com",
+           "--no-allow-unauthenticated", "--max-instances", "2"]
+options:
+  logging: CLOUD_LOGGING_ONLY
