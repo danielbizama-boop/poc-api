@@ -1,0 +1,5 @@
+# requirements.txt (fija versiones con pip freeze cuando funcione)
+fastapi
+uvicorn[standard]
+scikit-learn
+joblib
